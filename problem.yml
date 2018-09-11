@@ -1,0 +1,16 @@
+- name: Create directory and restart NGINX
+  hosts: lbservers
+  tasks:
+    - name: Create directory
+      file:
+        path: /tmp/logs
+        state: directory
+        owner: student
+        group: student
+        mode: 0775
+        recurse: yes
+
+    - name: Restart NGINX
+      systemd:
+        state: restarted
+        name: nginx
