@@ -1,0 +1,39 @@
+---
+- name: Install java
+  yum:
+    name: java-headless
+- name: Create directory to store binary
+  file:
+    path: /opt/wildflyapp
+    state: directory
+- name: Copy jar file to the server
+  copy:
+    src: binaries/example-jaxrs-war-swarm.jar
+    dest: /opt/wildflyapp/example-jaxrs-war-swarm.jar
+    mode: 0644
+  register: jar_file_copy
+- name: Create service script
+  template:
+    src: wildflyapp.template
+    dest: /etc/systemd/system/wildflyapp.service
+    owner: root
+    group: root
+    mode: 0644
+  register: service_script_create
+  no_log: true
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+- name: Enable wildfly app service script
+  systemd:
+    name: wildflyapp
+    enabled: yes
+    masked: no
+    state: started
+  no_log: true
+- name: Restart the wildfly app if there are any changes
+  systemd: 
+    name: wildflyapp
+    state: restarted 
+  when: jar_file_copy.changed or service_script_create.changed
+  no_log: true

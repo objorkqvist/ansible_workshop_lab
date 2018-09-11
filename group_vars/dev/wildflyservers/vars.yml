@@ -1,0 +1,1 @@
+wildfly_secret_content: "{{ wildfly_secret_vault }}"
